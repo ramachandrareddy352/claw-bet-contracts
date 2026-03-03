@@ -17,7 +17,7 @@ contract ClawBetGameTest is Test {
     function setUp() public {
         mockVRF = new MockVRFCoordinator();
 
-        game = new ClawBetGame(address(mockVRF), 1, bytes32("keyhash"), address(this));
+        game = new ClawBetGame(address(mockVRF), 1, bytes32("keyhash"), address(this), address(0));
 
         mockToken = new MockERC20();
 
