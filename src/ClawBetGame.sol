@@ -171,9 +171,7 @@ contract ClawBetGame is VRFConsumerBaseV2Plus, ReentrancyGuard {
 
         if (betToken == address(0)) {
             require(msg.value == amount, "Incorrect native amount");
-
-            uint256 preBalance = address(this).balance - msg.value;
-            require(preBalance >= maxPossiblePayout, "Insufficient liquidity");
+            require(address(this).balance >= maxPossiblePayout, "Insufficient liquidity");
         } else {
             require(IERC20(betToken).balanceOf(address(this)) >= maxPossiblePayout, "Insufficient liquidity");
 
