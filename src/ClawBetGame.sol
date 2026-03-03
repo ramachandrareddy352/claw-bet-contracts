@@ -9,13 +9,12 @@ Single-Asset Claw Betting Game
 - Refund mechanism if VRF fails
 */
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
-import "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
+import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
+import "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 
 contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
-
     using SafeERC20 for IERC20;
 
     // STRUCTS
@@ -27,8 +26,8 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
     }
 
     // STATES
-    address public betToken; // address(0) = native
-    uint256 public feeBP;
+    address public betToken = address(0); // address(0) = native
+    uint256 public feeBP = 200; // 2%
     uint256 public constant BP_DIVISOR = 10000;
 
     uint256[] public betAmounts;
@@ -49,47 +48,38 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
 
     // EVENTS
     event BetPlaced(
-        uint256 indexed requestId,
-        address indexed player,
-        address indexed token,
-        uint256 amount,
-        uint256 timestamp
+        uint256 indexed requestId, address indexed player, address indexed token, uint256 amount, uint256 timestamp
     );
 
     event BetResolved(
-        uint256 indexed requestId,
-        address indexed player,
-        uint256 multiplier,
-        uint256 payout,
-        uint256 timestamp
+        uint256 indexed requestId, address indexed player, uint256 multiplier, uint256 payout, uint256 timestamp
     );
 
-    event BetRefunded(
-        uint256 indexed requestId,
-        address indexed player,
-        uint256 amount
-    );
+    event BetRefunded(uint256 indexed requestId, address indexed player, uint256 amount);
 
     event ParametersUpdated();
     event BettingTokenUpdated(address token);
     event FeeUpdated(uint256 feeBP);
 
     // CONSTRUCTOR
-    constructor(
-        address _vrfCoordinator,
-        uint64 _subId,
-        bytes32 _keyHash,
-        address _betToken,
-        uint256 _feeBP
-    ) VRFConsumerBaseV2(_vrfCoordinator) {
-
+    constructor(address _vrfCoordinator, uint64 _subId, bytes32 _keyHash, address _owner)
+        VRFConsumerBaseV2(_vrfCoordinator)
+        Ownable(_owner)
+    {
         coordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
         subscriptionId = _subId;
         keyHash = _keyHash;
 
-        require(_feeBP <= 10000, "Fee too high");
-        feeBP = _feeBP;
-        betToken = _betToken;
+        // Default bet amounts (assumes 18 decimals token)
+        betAmounts = [1 ether, 10 ether, 20 ether, 50 ether, 100 ether];
+
+        // Default multipliers (0 → 20)
+        multipliers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+        // Default weights
+        weights = [70, 65, 60, 58, 56, 54, 52, 50, 48, 37, 70, 65, 60, 55, 50, 55, 30, 25, 20, 15, 5];
+
+        totalWeight = 1000;
     }
 
     // ADMIN CONFIGURATION
@@ -104,10 +94,7 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
         emit FeeUpdated(_feeBP);
     }
 
-    function setBetAmounts(uint256[] calldata _amounts)
-        external
-        onlyOwner
-    {
+    function setBetAmounts(uint256[] calldata _amounts) external onlyOwner {
         require(_amounts.length > 0, "Empty");
         betAmounts = _amounts;
         emit ParametersUpdated();
@@ -118,14 +105,15 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
         uint256[] calldata _weights,
         uint256 _totalWeight
     ) external onlyOwner {
-
         require(_multipliers.length == _weights.length, "Length mismatch");
         require(_multipliers.length > 0, "Empty");
 
         uint256 sum;
-        for (uint256 i; i < _weights.length; ) {
+        for (uint256 i; i < _weights.length;) {
             sum += _weights[i];
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
 
         require(sum == _totalWeight, "Invalid weight sum");
@@ -138,11 +126,7 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
     }
 
     // USER BET
-    function placeBet(uint256 index)
-        external
-        payable
-        returns (uint256 requestId)
-    {
+    function placeBet(uint256 index) external payable returns (uint256 requestId) {
         require(index < betAmounts.length, "Invalid index");
 
         uint256 amount = betAmounts[index];
@@ -151,44 +135,19 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
             require(msg.value == amount, "Incorrect native amount");
         } else {
             require(msg.value == 0, "No native allowed");
-            IERC20(betToken).safeTransferFrom(
-                msg.sender,
-                address(this),
-                amount
-            );
+            IERC20(betToken).safeTransferFrom(msg.sender, address(this), amount);
         }
 
-        requestId = coordinator.requestRandomWords(
-            keyHash,
-            subscriptionId,
-            requestConfirmations,
-            callbackGasLimit,
-            1
-        );
+        requestId = coordinator.requestRandomWords(keyHash, subscriptionId, requestConfirmations, callbackGasLimit, 1);
 
-        bets[requestId] = Bet({
-            player: msg.sender,
-            amount: amount,
-            timestamp: block.timestamp,
-            settled: false
-        });
+        bets[requestId] = Bet({player: msg.sender, amount: amount, timestamp: block.timestamp, settled: false});
 
-        emit BetPlaced(
-            requestId,
-            msg.sender,
-            betToken,
-            amount,
-            block.timestamp
-        );
+        emit BetPlaced(requestId, msg.sender, betToken, amount, block.timestamp);
     }
 
     // VRF CALLBACK
-    function fulfillRandomWords(
-        uint256 requestId,
-        uint256[] memory randomWords
-    ) internal override {
-
-        Bet storage betData = bets[requestId];
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+        Bet memory betData = bets[requestId];
         if (betData.settled || betData.player == address(0)) return;
 
         uint256 rnd = randomWords[0] % totalWeight;
@@ -196,46 +155,36 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
         uint256 acc;
         uint256 multiplier;
 
-        for (uint256 i; i < weights.length; ) {
+        for (uint256 i; i < weights.length;) {
             acc += weights[i];
             if (rnd < acc) {
                 multiplier = multipliers[i];
                 break;
             }
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
 
         uint256 fee = (betData.amount * feeBP) / BP_DIVISOR;
         uint256 net = betData.amount - fee;
         uint256 payout = (net * multiplier) / 10;
 
-        betData.settled = true;
-
         if (payout > 0) {
             _transferOut(betData.player, payout);
         }
 
-        emit BetResolved(
-            requestId,
-            betData.player,
-            multiplier,
-            payout,
-            block.timestamp
-        );
+        emit BetResolved(requestId, betData.player, multiplier, payout, block.timestamp);
+        delete bets[requestId];
     }
 
     // REFUND IF VRF FAILS
-    function claimRefund(uint256 requestId)
-        external
-    {
+    function claimRefund(uint256 requestId) external {
         Bet storage betData = bets[requestId];
 
         require(!betData.settled, "Already settled");
         require(betData.player == msg.sender, "Not player");
-        require(
-            block.timestamp > betData.timestamp + REFUND_DELAY,
-            "Too early"
-        );
+        require(block.timestamp > betData.timestamp + REFUND_DELAY, "Too early");
 
         betData.settled = true;
 
@@ -249,7 +198,7 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
         if (betToken == address(0)) {
             require(address(this).balance >= amount, "Insufficient native");
 
-            (bool success, ) = payable(to).call{value: amount}("");
+            (bool success,) = payable(to).call{value: amount}("");
             require(success, "Native transfer failed");
         } else {
             IERC20 token = IERC20(betToken);
@@ -259,18 +208,12 @@ contract ClawBetGame is Ownable, VRFConsumerBaseV2 {
     }
 
     // RESCUE
-    function rescueERC20(address token, address receiver, uint256 amount)
-        external
-        onlyOwner
-    {
+    function rescueERC20(address token, address receiver, uint256 amount) external onlyOwner {
         IERC20(token).safeTransfer(receiver, amount);
     }
 
-    function rescueNative(address receiver, uint256 amount)
-        external
-        onlyOwner
-    {
-        (bool success, ) = payable(receiver).call{value: amount}("");
+    function rescueNative(address receiver, uint256 amount) external onlyOwner {
+        (bool success,) = payable(receiver).call{value: amount}("");
         require(success, "Native transfer failed");
     }
 
