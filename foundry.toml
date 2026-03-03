@@ -7,3 +7,7 @@ libs = ["lib"]
 
 script = "ignore_scripts"
 test = "ignore_tests"
+
+via_ir = true
+optimizer = true          # usually already true, but good to have
+optimizer_runs = 200

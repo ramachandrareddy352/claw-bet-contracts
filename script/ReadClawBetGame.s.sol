@@ -9,7 +9,7 @@ import "../src/ClawBetGame.sol";
 
 contract ReadClawBetGame is Script {
     function run() external view {
-        address deployedAddress = 0xf316b4698b1D147Ac0a6B0E63A7E012070b89CE0;
+        address deployedAddress = 0x18A181748cA82500090C96E2d2D7194bB3C2b16A;
 
         ClawBetGame game = ClawBetGame(payable(deployedAddress));
 
@@ -20,9 +20,6 @@ contract ReadClawBetGame is Script {
         console.log("Bet Token:", game.betToken());
         console.log("Fee BP:", game.feeBP());
         console.log("Total Weight:", game.totalWeight());
-
-        console.log("Subscription ID:", game.subscriptionId());
-        console.logBytes32(game.keyHash());
 
         console.log("Callback Gas Limit:", game.callbackGasLimit());
         console.log("Request Confirmations:", game.requestConfirmations());

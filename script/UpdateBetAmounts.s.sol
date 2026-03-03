@@ -11,7 +11,7 @@ contract UpdateBetAmounts is Script {
     function run() external {
         vm.startBroadcast();
 
-        address gameAddress = 0xf316b4698b1D147Ac0a6B0E63A7E012070b89CE0;
+        address gameAddress = 0x18A181748cA82500090C96E2d2D7194bB3C2b16A;
         ClawBetGame game = ClawBetGame(payable(gameAddress));
 
         uint256[] memory newAmounts = new uint256[](5);
@@ -35,3 +35,43 @@ contract UpdateBetAmounts is Script {
         vm.stopBroadcast();
     }
 }
+
+/*
+== Logs ==
+  Bet amounts updated successfully
+  ========== UPDATED BET AMOUNTS ==========
+  Index 0 : 100000000000000000
+  Index 1 : 1000000000000000000
+  Index 2 : 2000000000000000000
+  Index 3 : 5000000000000000000
+  Index 4 : 10000000000000000000
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 97
+
+Estimated gas price: 0.1 gwei
+
+Estimated total gas used for script: 54882
+
+Estimated amount required: 0.0000054882 ETH
+
+==========================
+
+##### bsc-testnet
+✅  [Success] Hash: 0x42560068f07f6d62633566c519e4937ea21b367128e71a957fd0e64cb3fc4879
+Block: 93602141
+Paid: 0.0000039734 ETH (39734 gas * 0.1 gwei)
+
+✅ Sequence #1 on bsc-testnet | Total Paid: 0.0000039734 ETH (39734 gas * avg 0.1 gwei)                      
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: C:/Users/rcrta/OneDrive/Desktop/claw-game/claw-bet-game-contracts/broadcast\UpdateBetAmounts.s.sol\97\run-latest.json
+
+Sensitive values saved to: C:/Users/rcrta/OneDrive/Desktop/claw-game/claw-bet-game-contracts/cache\UpdateBetAmounts.s.sol\97\run-latest.json
+*/

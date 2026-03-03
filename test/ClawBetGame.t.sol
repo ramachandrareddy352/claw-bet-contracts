@@ -21,7 +21,7 @@ contract ClawBetGameTest is Test {
 
         mockToken = new MockERC20();
 
-        vm.deal(address(game), 1000 ether); // add liquidity to game
+        vm.deal(address(game), 1000 ether); // add liquidity to game and link tokens also
         vm.deal(player, 100 ether);
     }
 

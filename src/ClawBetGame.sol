@@ -186,14 +186,13 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard {
         uint256 payout = (net * multiplier) / 10;
 
         betData.settled = true;
-        betData.payout = payout;
+        betData.payout = payout; // do not delete the data, we use it in frontend
 
         if (payout > 0) {
             _transferOut(betData.player, payout);
         }
 
         emit BetResolved(_requestId, betData.player, multiplier, payout, uint64(block.timestamp));
-        delete bets[_requestId];
     }
 
     // REFUND IF VRF FAILS
@@ -209,7 +208,6 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard {
         _transferOut(msg.sender, betData.amount);
 
         emit BetRefunded(_requestId, msg.sender, betData.amount);
-        delete bets[_requestId];
     }
 
     // INTERNAL TRANSFER
