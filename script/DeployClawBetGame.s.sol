@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "../src/ClawBetGame.sol";
 // forge script script/DeployClawBetGame.s.sol:DeployClawBetGame  --rpc-url https://data-seed-prebsc-1-s1.bnbchain.org:8545  --private-key $PRIVATE_KEY --broadcast
 
-// cast send 0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06 "transfer(address,uint256)" 0x18A181748cA82500090C96E2d2D7194bB3C2b16A 5000000000000000000 --rpc-url https://data-seed-prebsc-1-s1.bnbchain.org:8545 --private-key $PRIVATE_KEY
+// cast send 0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06 "transfer(address,uint256)" 0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333 5000000000000000000 --rpc-url https://data-seed-prebsc-1-s1.bnbchain.org:8545 --private-key $PRIVATE_KEY
 
 contract DeployClawBetGame is Script {
     function run() external {
@@ -35,7 +35,7 @@ contract DeployClawBetGame is Script {
 /*
 
 == Logs ==
-  ClawBetGame deployed at: 0x18A181748cA82500090C96E2d2D7194bB3C2b16A
+  ClawBetGame deployed at: 0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333
   VRF Wrapper used:        0x471506e6ADED0b9811D05B8cAc8Db25eE839Ac94
   LINK Token:              0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06
   Owner / Claw Owner:      0x4319f90913bf7dC168887d45f3bfDD9a2C5C9291
@@ -56,7 +56,7 @@ Estimated amount required: 0.0006211043 ETH
 
 ##### bsc-testnet
 ✅  [Success] Hash: 0x9d5ac68c625df6bbac41a68f54f43f9fe7ae0c6d65ff283e31dc2875cfc05c6e
-Contract Address: 0x18A181748cA82500090C96E2d2D7194bB3C2b16A
+Contract Address: 0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333
 Block: 93601630
 Paid: 0.0004777726 ETH (4777726 gas * 0.1 gwei)
 

@@ -11,7 +11,7 @@ contract UpdateBetAmounts is Script {
     function run() external {
         vm.startBroadcast();
 
-        address gameAddress = 0x18A181748cA82500090C96E2d2D7194bB3C2b16A;
+        address gameAddress = 0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333;
         ClawBetGame game = ClawBetGame(payable(gameAddress));
 
         uint256[] memory newAmounts = new uint256[](5);

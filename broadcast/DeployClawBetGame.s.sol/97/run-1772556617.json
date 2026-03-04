@@ -4,7 +4,7 @@
       "hash": "0x9d5ac68c625df6bbac41a68f54f43f9fe7ae0c6d65ff283e31dc2875cfc05c6e",
       "transactionType": "CREATE",
       "contractName": "ClawBetGame",
-      "contractAddress": "0x18a181748ca82500090c96e2d2d7194bb3c2b16a",
+      "contractAddress": "0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333",
       "function": null,
       "arguments": [
         "0x471506e6ADED0b9811D05B8cAc8Db25eE839Ac94",
@@ -30,7 +30,7 @@
       "cumulativeGasUsed": "0x4a4b05",
       "logs": [
         {
-          "address": "0x18a181748ca82500090c96e2d2d7194bb3c2b16a",
+          "address": "0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333",
           "topics": [
             "0xba11d89f0dae840c0fa6f6d40de86b8d092f97630669b48363badb074b4dccd5",
             "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -56,7 +56,7 @@
       "effectiveGasPrice": "0x5f5e100",
       "from": "0x4319f90913bf7dc168887d45f3bfdd9a2c5c9291",
       "to": null,
-      "contractAddress": "0x18a181748ca82500090c96e2d2d7194bb3c2b16a"
+      "contractAddress": "0x5D55E23E6D9CEd6c2B9abBDfE5cEBAd1C4567333"
     }
   ],
   "libraries": [],
