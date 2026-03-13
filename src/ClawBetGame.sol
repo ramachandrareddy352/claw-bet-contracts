@@ -124,7 +124,7 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard {
         if (betToken == address(0)) {
             require(msg.value == amount, "Incorrect native amount");
             require(
-                address(this).balance > maxPossiblePayout + (enableNativePayment ? vrfFee : 0), "Insufficient liquidity"
+                address(this).balance - msg.value > maxPossiblePayout + (enableNativePayment ? vrfFee : 0), "Insufficient liquidity"
             );
         } else {
             require(msg.value == 0, "No native allowed");
