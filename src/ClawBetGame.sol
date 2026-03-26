@@ -72,7 +72,7 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard, Pausable 
         VRFV2PlusWrapperConsumerBase(_wrapperAddress)
     {
         i_wrapperAddress = _wrapperAddress;
-        i_betToken = _betToken;
+        i_betToken = IERC20(_betToken);
 
         clawOwner = _clawOwner;
 
@@ -223,10 +223,10 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard, Pausable 
 
         betData.isSettled = true;
 
-        pendingLiquidity -= bet.maxPayoutReserved;
-        pendingRawLiquidity -= bet.amount;
+        pendingLiquidity -= betData.maxPayoutReserved;
+        pendingRawLiquidity -= betData.amount;
 
-        i_token.safeTransfer(betData.player, betData.amount);
+        i_betToken.safeTransfer(betData.player, betData.amount);
 
         emit ForceRefund(_requestId, betData.player, betData.amount);
     }
