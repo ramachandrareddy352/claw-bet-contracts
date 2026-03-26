@@ -32,7 +32,7 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard, Pausable 
     // VRF
     address public immutable i_wrapperAddress;
     uint32 public callbackGasLimit = 300000;
-    uint256 public vrfInitialFee = 400000000000000; // 0.0004
+    uint256 public vrfInitialFee = 1000000000000000; // 0.001
 
     // STATES
     address public clawOwner;
@@ -149,6 +149,13 @@ contract ClawBetGame is VRFV2PlusWrapperConsumerBase, ReentrancyGuard, Pausable 
 
         // excess fee is taken by the protocol as operation fees
         require(reqPrice <= vrfInitialFee, "VRF fee exceeded");
+
+        // Refund excess
+        uint256 refund = vrfInitialFee - reqPrice;
+        if (refund > 0) {
+            (bool success,) = payable(msg.sender).call{value: refund}("");
+            require(success, "Refund failed");
+        }
 
         bets[requestId] = Bet({
             player: msg.sender,

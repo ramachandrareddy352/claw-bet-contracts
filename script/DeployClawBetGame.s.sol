@@ -13,20 +13,18 @@ contract DeployClawBetGame is Script {
 
         // ===== Chainlink VRF v2.5 Direct Funding Config for BNB Chain Testnet =====
         address vrfWrapper = 0x471506e6ADED0b9811D05B8cAc8Db25eE839Ac94; // VRFV2PlusWrapper
-        address linkToken = 0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06; // LINK on BNB testnet
 
         // You might want to set the owner to your deployer or a multisig
         address clawOwner = msg.sender;
 
         // betToken = address(0) means native BNB bets (change to ERC20 if needed)
-        address betToken = 0x84b9B910527Ad5C03A9Ca831909E21e236EA7b06; // use link token
+        address betToken = 0xdF81f07910b533bC6899441aD131c5a08a4C6BfA; // use link token
 
         // Deploy the game contract
-        ClawBetGame game = new ClawBetGame(vrfWrapper, linkToken, clawOwner, betToken);
+        ClawBetGame game = new ClawBetGame(vrfWrapper, clawOwner, betToken);
 
         console.log("ClawBetGame deployed at: %s", address(game));
         console.log("VRF Wrapper used:        %s", vrfWrapper);
-        console.log("LINK Token:              %s", linkToken);
         console.log("Owner / Claw Owner:      %s", clawOwner);
         vm.stopBroadcast();
     }
